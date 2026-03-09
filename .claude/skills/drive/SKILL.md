@@ -1,6 +1,6 @@
 ---
 name: drive
-description: Terminal automation CLI for AI agents. Use drive to create tmux sessions, execute commands, send keystrokes, read output, poll for patterns, and run commands in parallel across sessions. Always use --json for structured output.
+description: Terminal automation CLI for AI agents. Use drive to create tmux sessions, execute commands, send keystrokes, read output, poll for patterns, run commands in parallel across sessions, and manage processes. Always use --json for structured output.
 ---
 
 # Drive — Terminal Automation via tmux
@@ -80,8 +80,43 @@ Runs command in all target sessions concurrently using ThreadPoolExecutor. Retur
 - **Use `poll` to wait for async events** — Watch for build completion, server startup, etc.
 - **Use `logs` to inspect** — Check what happened in a pane
 - **Use `fanout` for parallel work** — Run same command across multiple sessions
+- **Use `proc` for process management** — List, kill, and inspect processes instead of raw ps/kill
 - **Use `--json` always** — Structured output for reliable parsing
 - **Write all files to /tmp** — Any JSON, logs, or other files you generate must go to `/tmp/`. Never write output files into the project directory.
+
+### proc — Process management
+
+List, kill, inspect, and monitor processes. The agent's replacement for Activity Monitor.
+
+```bash
+drive proc list --json                                    # All user processes
+drive proc list --name claude --json                      # Filter by name
+drive proc list --session job-abc123 --json               # Processes in a tmux session
+drive proc list --parent 12345 --json                     # Children of a PID
+drive proc list --cwd /path/to/project --json             # Processes running from a directory
+drive proc kill 12345 --json                              # Kill by PID (SIGTERM → wait → SIGKILL)
+drive proc kill --name "claude" --json                    # Kill all matching name
+drive proc kill 12345 --tree --json                       # Kill PID and all children
+drive proc kill 12345 --force --json                       # Force kill (SIGKILL, no grace period)
+drive proc kill 12345 --signal 9 --json                   # Same as --force
+drive proc tree 12345 --json                              # Show process tree from PID
+drive proc top --session job-abc123 --json                # Resource snapshot for session
+drive proc top --pid 12345,12346 --json                   # Resource snapshot for specific PIDs
+```
+
+Each process includes `cwd` (working directory) in its JSON output — use this to identify processes spawned from a specific project or directory.
+
+**Kill uses a two-step pattern**: sends the signal (default SIGTERM), waits up to 5 seconds for graceful exit, then SIGKILL if still alive. Use `--tree` to kill a process and all its children (critical for Claude Code which spawns node subprocesses).
+
+#### Process cleanup pattern
+
+During cleanup, `cd` back to your original working directory and use `proc list` to find processes you started that you don't need running anymore. If the task specified they should keep running, leave them alone.
+
+```
+1. drive proc list --session job-abc123 --json   → see what's running
+2. drive proc kill <pid> --tree --json           → kill it and children
+3. drive proc list --name <name> --json          → verify nothing survived
+```
 
 ## Sentinel Protocol
 

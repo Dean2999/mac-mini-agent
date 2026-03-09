@@ -74,3 +74,24 @@ class PatternNotFoundError(DriveError):
         super().__init__(
             f"Pattern '{pattern}' not found in session '{session}' within {timeout}s"
         )
+
+
+class ProcessNotFoundError(DriveError):
+    code = "process_not_found"
+
+    def __init__(self, pid: int | None = None, name: str | None = None):
+        if pid is not None:
+            msg = f"Process not found: PID {pid}"
+        elif name is not None:
+            msg = f"No processes matching: {name}"
+        else:
+            msg = "No matching processes found"
+        super().__init__(msg)
+
+
+class KillPermissionError(DriveError):
+    code = "kill_permission_denied"
+
+    def __init__(self, pid: int):
+        super().__init__(f"Permission denied killing PID {pid}")
+        self.pid = pid

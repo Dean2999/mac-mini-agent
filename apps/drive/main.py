@@ -7,6 +7,7 @@ from commands.send import send
 from commands.logs import logs
 from commands.poll import poll
 from commands.fanout import fanout
+from commands.proc import proc_cmd
 
 
 @click.group()
@@ -22,6 +23,7 @@ cli.add_command(send)
 cli.add_command(logs)
 cli.add_command(poll)
 cli.add_command(fanout)
+cli.add_command(proc_cmd, name="proc")
 
 
 if __name__ == "__main__":
