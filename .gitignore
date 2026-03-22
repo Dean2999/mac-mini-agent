@@ -36,5 +36,8 @@ __pycache__/
 # Playwright
 .playwright-cli/
 
+# Logs
+logs/*.log
+
 # Specs
 specs/mm-adversarial.md
