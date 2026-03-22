@@ -3,6 +3,10 @@
 > Read this document before attempting to communicate with this Mac Mini agent.
 > It covers everything a remote Claude Code agent needs: connection setup, job submission, polling, and the second brain.
 
+> **IMPORTANT — Second Brain Location:**
+> The second brain lives on the Mac Mini at `dean-bot@Dean-Bots-Mac-mini.local:~/agent-brain/`.
+> Do NOT create a local `~/agent-brain/` on the remote machine. Access it exclusively via SSH.
+
 ---
 
 ## This Machine
