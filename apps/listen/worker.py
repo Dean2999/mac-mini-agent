@@ -161,6 +161,15 @@ def main():
     if _session_exists(session_name):
         _tmux("kill-session", "-t", session_name, check=False)
 
+    # Close the Terminal.app window opened for this job
+    subprocess.run(
+        [
+            "osascript", "-e",
+            f'tell application "Terminal" to close (every window whose name contains "{session_name}")',
+        ],
+        capture_output=True,
+    )
+
 
 if __name__ == "__main__":
     main()
